@@ -48,7 +48,6 @@ bool is_legal_board(struct tile board[MAX_ROWS][MAX_COLS]);
 bool is_legal_answer(struct tile board[MAX_ROWS][MAX_COLS], struct answer answer);
 
 void initialise_pencil(struct tile board[MAX_ROWS][MAX_COLS]);
-bool are_pencils_cleared(struct tile board[MAX_ROWS][MAX_COLS]);
 
 void check_every_cell(struct tile board[MAX_ROWS][MAX_COLS]);
 void confirm_answer(struct tile board[MAX_ROWS][MAX_COLS], struct answer answer);
@@ -63,6 +62,7 @@ int get_box(int row, int col);
 
 void solve_sudoku(struct tile board[MAX_ROWS][MAX_COLS]);
 
+// debug function to test sudokus. Should replace with a generator or user input.
 void debug_input_sudoku(struct tile board[MAX_ROWS][MAX_COLS]) {
     int sudoku[MAX_ROWS * MAX_COLS] = {
     5, 3, 0, 0, 7, 0, 0, 0, 0,
@@ -83,6 +83,7 @@ void debug_input_sudoku(struct tile board[MAX_ROWS][MAX_COLS]) {
     }
 }
 
+// Debug function to view pencil
 void debug_print_pencil(struct tile board[MAX_ROWS][MAX_COLS]) {
     for (int row = 0; row < MAX_ROWS; row++) {
         for (int col = 0; col < MAX_COLS; col++) {
@@ -121,18 +122,15 @@ int main(void) {
     return 0;
 }
 
+// Loops until sudoku is solved, makes an illegal move, or infinite loops.
 void solve_sudoku(struct tile board[MAX_ROWS][MAX_COLS]) {
     int count = 0;
     bool is_legal = false;
 
     while (!is_solved(board)) {
-        if (are_pencils_cleared(board)) {
-            initialise_pencil(board);
-        }
         
         fill_naked_singles(board);
         fill_hidden_singles(board);
-        // initialise_pencil(board);
 
         count++;
         is_legal = is_legal_board(board);
@@ -145,6 +143,7 @@ void solve_sudoku(struct tile board[MAX_ROWS][MAX_COLS]) {
     printf("iteration count = %d\n", count);
 }
 
+// Returns true if sudoku solver needs to exit for any reason other than solved puzzle.
 bool is_failed(bool is_legal, int count) {
     if (!is_legal) {
         printf("Illegal, quitting\n");
@@ -162,10 +161,13 @@ bool is_failed(bool is_legal, int count) {
 /////////////////////////////////////////////////////SOLVING LOGIC//////////////////////////////////////////////////////////
 
 /////////////////////////////////SIMPLE SOLVES////////////////////////////////
-// If two cells contain 
+// If two cells in a unit contain only two numbers, it is a naked pair. Those two numbers cannot appear anywhere else in the unit.
 
-// If a row/col/box only has one spot for a number, even if the cell has other possibilities, it is a hidden single.
-// Keep a counter for each number. Iterate across a row, col, and box, resetting the counter each time.
+// If two cells contain two of the same number and are the only cells to contain them, it is a Hidden Pair.
+// Those cells cannot contain any other two numbers.
+
+// If a unit only has one spot for a number, even if the cell has other possibilities, it is a Hidden Single.
+// Keep a counter for each number. Iterate across a unit resetting the counter each complete pass.
 void fill_hidden_singles(struct tile board[MAX_ROWS][MAX_COLS]) {
     struct answer answer;
     struct hidden_pencil_counter pencil_count[NUMBERS];
@@ -242,7 +244,9 @@ void fill_hidden_singles(struct tile board[MAX_ROWS][MAX_COLS]) {
 }
 
 
-// If a cell can only contain one number, it is a naked single.
+// If a cell can only contain one number, it is a naked single. 
+// Take a single cell and check how many pencil marks it has.
+// If that number is 1, then that is the answer.
 void fill_naked_singles(struct tile board[MAX_ROWS][MAX_COLS]) {
     for (int row = 0; row < MAX_ROWS; row++) {
         for (int col = 0; col < MAX_COLS; col++) {
@@ -274,19 +278,7 @@ void fill_naked_singles(struct tile board[MAX_ROWS][MAX_COLS]) {
 
 ////////////////////////////////SOLVING UTILITIES/////////////////////////////////
 
-bool are_pencils_cleared(struct tile board[MAX_ROWS][MAX_COLS]) {
-    for (int row = 0; row < MAX_ROWS; row++) {
-        for (int col = 0; col < MAX_COLS; col++) {
-            for (int i = 0; i < NUMBERS; i++) {
-                if (board[row][col].pencil[i]) {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
+// Returns true if every grid has been filled. Does not check if it has been solved correctly.
 bool is_solved(struct tile board[MAX_ROWS][MAX_COLS]) {
     for(int row = 0; row < MAX_ROWS; row++) {
         for (int col = 0; col < MAX_COLS; col++) {
@@ -299,6 +291,8 @@ bool is_solved(struct tile board[MAX_ROWS][MAX_COLS]) {
     return true;
 }
 
+// Takes an answer and inserts it into the board. Will then remove pencils of the input cell,
+// as well as eliminate respective pencils for the units that contained the cell.
 void confirm_answer(struct tile board[MAX_ROWS][MAX_COLS], struct answer answer) {
     board[answer.row][answer.col].answer = answer.answer;
     if (!is_legal_answer(board, answer)) {
@@ -325,6 +319,7 @@ void confirm_answer(struct tile board[MAX_ROWS][MAX_COLS], struct answer answer)
     }
 }
 
+// Initialises pencil value to true if it could theoretically be an answer and false if it cannot.
 void initialise_pencil(struct tile board[MAX_ROWS][MAX_COLS]) {
     struct answer answer;
     for (int row = 0; row < MAX_ROWS; row++) {
@@ -344,8 +339,8 @@ void initialise_pencil(struct tile board[MAX_ROWS][MAX_COLS]) {
     }
 }
 
+// Checks if the board has any rule-breaking solutions. Returns true if a unit has 2 of the same number.
 bool is_legal_board(struct tile board[MAX_ROWS][MAX_COLS]) {
-
     struct answer answer;
     bool is_legal = true;
     for (int row = 0; row < MAX_ROWS; row++) {
@@ -363,6 +358,7 @@ bool is_legal_board(struct tile board[MAX_ROWS][MAX_COLS]) {
     return true;
 }
 
+// Checks if an answer can belong in a cell.
 bool is_legal_answer(struct tile board[MAX_ROWS][MAX_COLS], struct answer answer) {
     
     // printf("DEBUG: checking %d %d\n", answer.row, answer.col);
@@ -419,7 +415,6 @@ int get_box(int row, int col) {
 3 4 5
 6 7 8
 */
-
 struct box make_box(
     struct tile board[MAX_ROWS][MAX_COLS],
     int box_index
@@ -445,6 +440,7 @@ struct box make_box(
     return final_box;
 }
 
+// Initialises every cell to EMPTY (0).
 void initialise_board(struct tile board[MAX_ROWS][MAX_COLS]) {
     for (int row = 0; row < MAX_ROWS; row++) {
         for (int col = 0; col < MAX_COLS; col++) {
@@ -453,6 +449,7 @@ void initialise_board(struct tile board[MAX_ROWS][MAX_COLS]) {
     }
 }
 
+// Prints the board.
 void print_board(struct tile board[MAX_ROWS][MAX_COLS]) {
     print_border();
     for (int row = 0; row < MAX_ROWS; row++) {
@@ -477,9 +474,12 @@ void print_board(struct tile board[MAX_ROWS][MAX_COLS]) {
     print_border();
 }
 
+// Helper function to print the border.
 void print_border(void) {
     printf("-------------------------------------\n");
 }
+
+// Helper function to print dividers.
 void print_divider(void) {
     printf("|-----------+-----------+-----------|\n");
 }

@@ -14,8 +14,12 @@ RULES OF SOLVING:
 
 The idea is to create a program that attempts to solve a Sudoku puzzle in the same way a human does.
 
-The ultimate goal is to produce a program that can defeat a 17-square sudoku in the minimum possible iterations.
-    An iteration is counted as a single loop of the main while loop.
-    Hopefully, Personally, I want to achieve less than 10 iterations but I don't know if thats possible.
+The ultimate goal is to produce a program that can defeat a 17-square sudoku.
+
+TODO: 
+Naked and hidden double detection
+Fishing!
+
+Hopefully both of these can be implemented in a scalable way so I don't have to manually program a leviathan or something.
 
 As techniques get slightly more complicated, they get harder and harder to test. If anyone has a good testing platform pls send :_)

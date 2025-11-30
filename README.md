@@ -18,16 +18,4 @@ The ultimate goal is to produce a program that can defeat a 17-square sudoku in 
     An iteration is counted as a single loop of the main while loop.
     Hopefully, Personally, I want to achieve less than 10 iterations but I don't know if thats possible.
 
-TERMINOLOGY
-
-Unit - A row, a column, or a box where each number 1-9 only appears once.
-
-Pencil - All possible numbers a cell could be.
-
-Naked Singles - A cell that can only contain a number.
-
-Hidden Singles - A cell is the only one in its unit that can contain a number.
-
-Naked Doubles - Two cells in a unit contains only two numbers.
-
-Hidden Doubles - Two cells in a unit that are the only two to contain two numbers.
+As techniques get slightly more complicated, they get harder and harder to test. If anyone has a good testing platform pls send :_)

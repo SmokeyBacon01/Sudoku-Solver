@@ -1,5 +1,6 @@
 # Sudoku-Solver
 Attempt to solve a Sudoku
+It's getting increasingly impossible to test these techniques and I have no idea if these are even working :/
 
 RULES OF SOLVING:
 1. No backtracking - the solver must not backtrack to fix incorrect guesses

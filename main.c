@@ -66,6 +66,11 @@ struct remove_pointing {
     bool is_pointing_set_found;
 };
 
+struct remove_including {
+    struct cell protected[BOX_ROWS];
+    int remove_box_index;
+};
+
 struct protected {
     struct cell cell;
     struct protected *next;
@@ -258,6 +263,44 @@ bool is_failed(bool is_legal, int count) {
 
 // If all candidates of a number in a row/col share a box, they form an Including Set.
 // That candidate cannot appear in the rest of the box.
+
+void eliminate_including_sets(struct tile board[MAX_ROWS][MAX_COLS]) {
+    // Pick a candidate
+    // Iterate across a row.
+    // Check if it appears during 0, 1, 2 || 3, 4, 5 || 6, 7, 8
+    // box_appearance_count = 0
+    // when candidate is found, count++
+    // then, skip to next index.
+    // when another candidate in a seperate group is found, is_including_set = false
+    // if the scan ends and is_including_set = true, get that box and remove that candidate from the box.
+
+    // repeat for cols
+
+    for (int i = 0; i < NUMBERS; i++) {
+        for (int col = 0; col < MAX_COLS; col++) {
+            int box_appearance_count = 0;
+            struct cell appeared;
+            for (int row = 0; row < MAX_ROWS; row++) {
+                if (board[row][col].pencil[i]) {
+                    box_appearance_count++;
+                    appeared.row = row;
+                    appeared.col = col;
+                    if (row < 2) {
+                        row = 2;
+                    } else if (row < 5) {
+                        row = 5;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            if (box_appearance_count == 1) {
+                int clear = get_box(appeared.row, appeared.col);
+            }
+        }
+    }
+}
 
 // If all candidates of a number in a box also belong to a row or col, they form a Pointing Set.
 // That candidate cannot appear anywhere else in that row/col.
@@ -658,6 +701,7 @@ bool is_legal_answer(struct tile board[MAX_ROWS][MAX_COLS], struct answer answer
     return true;
 }
 
+// returns the index of the box
 int get_box(int row, int col) {
     return row - row % BOX_ROWS  + col / BOX_COLS;
 }
